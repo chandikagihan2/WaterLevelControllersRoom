@@ -1,7 +1,13 @@
-import java.awt.*;
 import javax.swing.*;
 
+class waterLevelObserver extends JFrame{
+    public void update(int waterLevel){   
+    }
+}
 
-public class waterLevelController {
-    
+
+
+class waterLevelController {    
+    public static void main(String[] args) {   
+    }
 }
