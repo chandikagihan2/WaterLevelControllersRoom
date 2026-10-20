@@ -5,23 +5,23 @@ class waterLevelObserver extends JFrame{
     }
 }
 
-class Alarm {
+class Alarm extends waterLevelController {
+    
+
+}
+
+class Display extends waterLevelController {
 
 
 }
 
-class Display {
-
-
-}
-
-class splitter {
+class splitter extends waterLevelObserver {
 
 
 
 }
 
-class SMSWindow {
+class SMSWindow extends waterLevelObserver {
 
 
 }
@@ -32,6 +32,7 @@ class controlRoom {
 }
 
 class waterLevelController {    
-    public static void main(String[] args) {   
+    public static void main(String[] args) {
+
     }
 }
