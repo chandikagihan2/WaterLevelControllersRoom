@@ -1,71 +1,110 @@
-import java.awt.*;
-import javax.swing.*;
+import java.util.*;
+import javax.swing.JFrame;
 
-class waterLevelObserver extends JFrame {
-    public void update(int waterLevel) {
-    }
-}
-
-class Alarm extends waterLevelControler {
+class WaterLevelObserver extends JFrame {
     private String id;
-    private JLabel AlarmLabel;
 
-    public Alarm(String id) {
+    public WaterLevelObserver() {
+    }
+
+    public WaterLevelObserver(String id) {
         this.id = id;
-
     }
 
-}
-
-class Display extends waterLevelControler {
-
-}
-
-class Splitter extends waterLevelObserver {
-
-}
-
-class SMS extends waterLevelObserver {
-
-}
-
-class ControlRoom extends JFrame {
-    private waterLevelObserver[] waterLevelObserverArray = new waterLevelObserver[0];
-    private int waterLevel;
-
-    private JSlider waterLevelJSlider;
-    private JLabel liveWaterLevelLabel;
-
-    public ControlRoom() {
-        setTitle("Water Level Control Room");
-        setSize(500, 400);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new GridLayout(6, 1, 5, 5));
-
-        JLabel titleLabel = new JLabel("Control Room ", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("", Font.BOLD, 16));
-        add(titleLabel);
-
-        waterLevelJSlider = new JSlider(0, 100, 0);
-        waterLevelJSlider.setMajorTickSpacing(20);
-        waterLevelJSlider.setPaintTicks(true);
-        waterLevelJSlider.setPaintLabels(true);
-
-        waterLevelJSlider.addChangeListener(e -> {
-            setWaterLevel(waterLevelJSlider.getValue());
-        });
+    public void setId(String id ) {
+        this.id = id;
     }
-}
-
-class waterLevelControler {
-    public static void main(String[] args) {
-                SwingUtilities.invokeLater(() -> {
-            ControlRoom controlRoom = new ControlRoom();
-
-            controlRoom.addWaterLevelObserver(new Alarm("A0001"));
-            controlRoom.addWaterLevelObserver(new Display("D0001"));
-            controlRoom.addWaterLevelObserver(new SMSsender("SM0001"));
-            controlRoom.addWaterLevelObserver(new Splitter("SP001"));
-        });
+    public String  getId(){
+        return id;
     }
+	public void update(int waterLevel){
+		 
+	}
 }
+class Alarm extends WaterLevelObserver {
+	public Alarm(String id) {
+		super(id);
+	}
+	
+	public void update(int waterLevel){
+		System.out.println(waterLevel>50 ? getId()+"-->Alarm ON":getId()+"-->Alarm OFF");
+	}
+}
+class Splitter extends WaterLevelObserver{
+	public Splitter(String id) {
+		super(id);
+	}
+	
+	public void update(int waterLevel){
+		System.out.println(waterLevel>75 ? getId()+"-->Splitter ON":getId()+"-->Splitter OFF");
+	}
+}
+class Display extends WaterLevelObserver{
+	public Display(String id) {
+		super(id);
+	}
+
+	public void update(int waterLevel){
+		System.out.println(getId()+"-->Water Level : "+waterLevel);
+	}
+}
+class SMSSender extends WaterLevelObserver{
+	public SMSSender(String id) {
+		super(id);
+
+	}
+
+    
+	
+	public void update(int waterLevel){
+		System.out.println(getId()+"-->Sending SMS..."+waterLevel);
+	}
+}
+class ControlRoom{
+	private WaterLevelObserver[] waterLevelObserverArray=new WaterLevelObserver[0];
+	private int waterLevel;
+
+    
+	public void addWaterLevelObserver(WaterLevelObserver waterLevelObserver){
+		extendArray();
+		waterLevelObserverArray[waterLevelObserverArray.length-1]=waterLevelObserver;
+	}
+
+	public void setWaterLevel(int waterLevel){
+		if(this.waterLevel!=waterLevel){
+			this.waterLevel=waterLevel;
+			notifyDevices();
+		}
+	}
+	private void notifyDevices(){
+		for(WaterLevelObserver ob : waterLevelObserverArray){
+			ob.update(waterLevel);
+		}
+	}
+	private void extendArray(){
+		WaterLevelObserver[] tempWaterLevelObserverArray=new WaterLevelObserver[waterLevelObserverArray.length+1];
+		for (int i = 0; i < waterLevelObserverArray.length; i++){
+			tempWaterLevelObserverArray[i]=waterLevelObserverArray[i];
+		}
+		waterLevelObserverArray=tempWaterLevelObserverArray;	
+	}
+}
+class WaterLevelControler {
+	public static void main(String[] args) {
+		ControlRoom controlRoom=new ControlRoom();
+
+		controlRoom.addWaterLevelObserver(new Alarm(""));
+		controlRoom.addWaterLevelObserver(new Display(""));
+		controlRoom.addWaterLevelObserver(new SMSSender(""));
+		controlRoom.addWaterLevelObserver(new Splitter(""));
+
+		Random r=new Random();
+		while(true){
+			int waterLevel=r.nextInt(101);
+			controlRoom.setWaterLevel(waterLevel);
+			System.out.println();
+			try{Thread.sleep(1000);}catch(InterruptedException ex){}
+		}
+	}
+}
+
