@@ -84,27 +84,52 @@ class Splitter extends WaterLevelObserver{
 
 	}
 }
-class Display extends WaterLevelObserver{
-	public Display(String id) {
-		super(id);
-	}
+class Display extends WaterLevelObserver {
+    private JLabel levelLabel;
 
-	public void update(int waterLevel){
-		System.out.println(getId()+"-->Water Level : "+waterLevel);
-	}
-}
-class SMSSender extends WaterLevelObserver{
-	public SMSSender(String id) {
-		super(id);
-        setTitle("");
+    public Display(String id) {
+        super(id);
+        setTitle("Display - " + id);
+        setSize(320, 150);
+        setLayout(new FlowLayout());
 
-	}
+        levelLabel = new JLabel(id + " --> Water Level : 0", SwingConstants.CENTER);
+        levelLabel.setFont(new Font("", Font.BOLD, 15));
+
+        add(levelLabel);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setLocation(1000,500);
+        setVisible(true);
+    }
 
     
-	
-	public void update(int waterLevel){
-		System.out.println(getId()+"-->Sending SMS..."+waterLevel);
-	}
+    public void update(int waterLevel) {
+        setTitle("Display - " + id);
+        levelLabel.setText(id + " --> Water Level : " + waterLevel);
+    }
+}
+class SMS extends WaterLevelObserver {
+    private JLabel smsLabel;
+
+    public SMS(String id) {
+        super(id);
+        setTitle("SMS Sender - " + id);
+        setSize(320, 150);
+        setLayout(new FlowLayout());
+
+        smsLabel = new JLabel(id + " --> Waiting...", SwingConstants.CENTER);
+        smsLabel.setFont(new Font("", Font.PLAIN, 14));
+
+        add(smsLabel);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setLocation(900,500);
+        setVisible(true);
+    }
+
+    public void update(int waterLevel) {
+        setTitle("SMS Sender - " + id);
+        smsLabel.setText(id + " --> Sending SMS Now Water Level... " + waterLevel);
+    }
 }
 class ControlRoom{
 	private WaterLevelObserver[] waterLevelObserverArray=new WaterLevelObserver[0];
@@ -141,7 +166,7 @@ class WaterLevelControler {
 
 		controlRoom.addWaterLevelObserver(new Alarm(""));
 		controlRoom.addWaterLevelObserver(new Display(""));
-		controlRoom.addWaterLevelObserver(new SMSSender(""));
+		controlRoom.addWaterLevelObserver(new SMS(""));
 		controlRoom.addWaterLevelObserver(new Splitter(""));
 
 		Random r=new Random();
