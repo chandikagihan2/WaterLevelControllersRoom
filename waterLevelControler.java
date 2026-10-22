@@ -131,34 +131,123 @@ class SMS extends WaterLevelObserver {
         smsLabel.setText(id + " --> Sending SMS Now Water Level... " + waterLevel);
     }
 }
-class ControlRoom{
-	private WaterLevelObserver[] waterLevelObserverArray=new WaterLevelObserver[0];
-	private int waterLevel;
+class ControlRoom extends JFrame {
+    private WaterLevelObserver[] waterLevelObserverArray = new WaterLevelObserver[0];
+    private int waterLevel;
 
-    
-	public void addWaterLevelObserver(WaterLevelObserver waterLevelObserver){
-		extendArray();
-		waterLevelObserverArray[waterLevelObserverArray.length-1]=waterLevelObserver;
-	}
+    private JSlider levelSlider;
+    private JLabel currentLevelLabel;
 
-	public void setWaterLevel(int waterLevel){
-		if(this.waterLevel!=waterLevel){
-			this.waterLevel=waterLevel;
-			notifyDevices();
-		}
-	}
-	private void notifyDevices(){
-		for(WaterLevelObserver ob : waterLevelObserverArray){
-			ob.update(waterLevel);
-		}
-	}
-	private void extendArray(){
-		WaterLevelObserver[] tempWaterLevelObserverArray=new WaterLevelObserver[waterLevelObserverArray.length+1];
-		for (int i = 0; i < waterLevelObserverArray.length; i++){
-			tempWaterLevelObserverArray[i]=waterLevelObserverArray[i];
-		}
-		waterLevelObserverArray=tempWaterLevelObserverArray;	
-	}
+    private JSpinner spinnerAlarm;
+    private JSpinner spinnerSplitter;
+    private JButton btnUpdateLimits;
+
+    private JTextField txtCommonId;
+    private JButton btnUpdateId;
+
+    public ControlRoom() {
+        setTitle("Water Level Control Room");
+        setSize(480, 380);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new GridLayout(6, 1, 5, 5));
+
+        JLabel titleLabel = new JLabel("Control Room Window", SwingConstants.CENTER);
+        titleLabel.setFont(new Font("", Font.BOLD, 16));
+        add(titleLabel);
+
+        levelSlider = new JSlider(0, 100, 0);
+        levelSlider.setMajorTickSpacing(20);
+        levelSlider.setPaintTicks(true);
+        levelSlider.setPaintLabels(true);
+
+        levelSlider.addChangeListener(e -> {
+            setWaterLevel(levelSlider.getValue());
+        });
+        add(levelSlider);
+
+        currentLevelLabel = new JLabel("Current Water Level: 0", SwingConstants.CENTER);
+        currentLevelLabel.setFont(new Font("", Font.BOLD, 14));
+        add(currentLevelLabel);
+
+        JPanel idPanel = new JPanel(new FlowLayout());
+        txtCommonId = new JTextField("", 10);
+        btnUpdateId = new JButton("Set ID");
+
+        idPanel.add(new JLabel("Device ID:"));
+        idPanel.add(txtCommonId);
+        idPanel.add(btnUpdateId);
+        add(idPanel);
+
+        JPanel inputPanel = new JPanel(new FlowLayout());
+        spinnerAlarm = new JSpinner(new SpinnerNumberModel(50, 0, 100, 1));
+        spinnerSplitter = new JSpinner(new SpinnerNumberModel(75, 0, 100, 1));
+        btnUpdateLimits = new JButton("Set Limits");
+
+        inputPanel.add(new JLabel("Alarm >"));
+        inputPanel.add(spinnerAlarm);
+        inputPanel.add(new JLabel("Splitter >"));
+        inputPanel.add(spinnerSplitter);
+        inputPanel.add(btnUpdateLimits);
+        add(inputPanel);
+
+        btnUpdateId.addActionListener(e -> {
+            String newId = txtCommonId.getText().trim();
+            if (!newId.isEmpty()) {
+                for (WaterLevelObserver ob : waterLevelObserverArray) {
+                    ob.setId(newId);
+                }
+                JOptionPane.showMessageDialog(this, "ID Updated to '" + newId + "' for all devices!");
+                notifyDevices();
+            } else {
+                JOptionPane.showMessageDialog(this, "Please enter a valid ID!", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+
+        btnUpdateLimits.addActionListener(e -> {
+            int newAlarmLimit = (Integer) spinnerAlarm.getValue();
+            int newSplitterLimit = (Integer) spinnerSplitter.getValue();
+
+            for (WaterLevelObserver ob : waterLevelObserverArray) {
+                if (ob instanceof Alarm) {
+                    ((Alarm) ob).setalarmLevel(newAlarmLimit);
+                } else if (ob instanceof Splitter) {
+                    ((Splitter) ob).setsplitterLevel(newSplitterLimit);
+                }
+            }
+            JOptionPane.showMessageDialog(this, "Limits Updated Successfully!");
+            notifyDevices();
+        });
+
+        setLocation(100, 100);
+        setVisible(true);
+    }
+
+    public void addWaterLevelObserver(WaterLevelObserver observer) {
+        extendArray();
+        waterLevelObserverArray[waterLevelObserverArray.length - 1] = observer;
+    }
+
+    public void setWaterLevel(int waterLevel) {
+        if (this.waterLevel != waterLevel) {
+            this.waterLevel = waterLevel;
+            currentLevelLabel.setText("Current Water Level: " + waterLevel);
+            notifyDevices();
+        }
+    }
+
+    private void notifyDevices() {
+        for (WaterLevelObserver ob : waterLevelObserverArray) {
+                ob.update(waterLevel);
+        }
+    }
+
+    private void extendArray() {
+        WaterLevelObserver[] tempArray = new WaterLevelObserver[waterLevelObserverArray.length + 1];
+        for (int i = 0; i < waterLevelObserverArray.length; i++) {
+            tempArray[i] = waterLevelObserverArray[i];
+        }
+        waterLevelObserverArray = tempArray;
+    }
 }
 class WaterLevelControler {
 	public static void main(String[] args) {
