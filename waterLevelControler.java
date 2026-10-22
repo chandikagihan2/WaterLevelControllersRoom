@@ -48,13 +48,13 @@ class Alarm extends WaterLevelObserver {
 
     
     public void update(int waterLevel) {
-        setTitle("Alarm - " + id);
+        setTitle("Alarm - " + getId());
         if (waterLevel > alarmLevel) {
-            statusLabel.setText(id + " --> Alarm ON ( > " + alarmLevel + ")");
+            statusLabel.setText(getId() + " --> Alarm ON ( > " + alarmLevel + ")");
             getContentPane().setBackground(Color.RED);
             statusLabel.setForeground(Color.WHITE);
         } else {
-            statusLabel.setText(id + " --> Alarm OFF (Limit: " + alarmLevel + ")");
+            statusLabel.setText(getId() + " --> Alarm OFF (Limit: " + alarmLevel + ")");
             getContentPane().setBackground(Color.LIGHT_GRAY);
             statusLabel.setForeground(Color.BLACK);
         }
@@ -70,7 +70,7 @@ class Splitter extends WaterLevelObserver{
         setSize(320, 150);
         setLayout(new FlowLayout());
 
-        spliLabel = new JLabel(getId()+ "--> Splitter OFF (Limit :)" +spliLevel+ ")",SwingConstants.CENTER);
+        spliLabel = new JLabel(getId() + " --> Splitter OFF (Limit: " + spliLevel + ")", SwingConstants.CENTER);
         spliLabel.setFont(new Font("",Font.BOLD,14));
         spliLabel.setForeground(Color.GREEN);
 
@@ -79,10 +79,16 @@ class Splitter extends WaterLevelObserver{
         setVisible(true);
 	}
 	
-	public void update(int waterLevel){
-		System.out.println(waterLevel>75 ? getId()+"-->Splitter ON":getId()+"-->Splitter OFF");
+    public void setSplitterLevel(int threshold) {
+        this.spliLevel = threshold;
+    }
 
-	}
+    public void update(int waterLevel) {
+        boolean isOn = waterLevel > spliLevel;
+        String status = getId() + (isOn ? " --> Splitter ON" : " --> Splitter OFF");
+        spliLabel.setText(status + " (Limit: " + spliLevel + ")");
+        System.out.println(status);
+    }
 }
 class Display extends WaterLevelObserver {
     private JLabel levelLabel;
@@ -104,8 +110,8 @@ class Display extends WaterLevelObserver {
 
     
     public void update(int waterLevel) {
-        setTitle("Display - " + id);
-        levelLabel.setText(id + " --> Water Level : " + waterLevel);
+        setTitle("Display - " + getId());
+        levelLabel.setText(getId() + " --> Water Level : " + waterLevel);
     }
 }
 class SMS extends WaterLevelObserver {
@@ -127,8 +133,8 @@ class SMS extends WaterLevelObserver {
     }
 
     public void update(int waterLevel) {
-        setTitle("SMS Sender - " + id);
-        smsLabel.setText(id + " --> Sending SMS Now Water Level... " + waterLevel);
+        setTitle("SMS Sender - " + getId());
+        smsLabel.setText(getId() + " --> Sending SMS Now Water Level... " + waterLevel);
     }
 }
 class ControlRoom extends JFrame {
@@ -211,7 +217,7 @@ class ControlRoom extends JFrame {
                 if (ob instanceof Alarm) {
                     ((Alarm) ob).setalarmLevel(newAlarmLimit);
                 } else if (ob instanceof Splitter) {
-                    ((Splitter) ob).setsplitterLevel(newSplitterLimit);
+                    ((Splitter) ob).setSplitterLevel(newSplitterLimit);
                 }
             }
             JOptionPane.showMessageDialog(this, "Limits Updated Successfully!");
@@ -267,4 +273,3 @@ class WaterLevelControler {
 		}
 	}
 }
-
