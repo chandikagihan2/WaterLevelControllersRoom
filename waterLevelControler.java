@@ -1,5 +1,6 @@
+import java.awt.*;
 import java.util.*;
-import javax.swing.JFrame;
+import javax.swing.*;
 
 class WaterLevelObserver extends JFrame {
     private String id;
@@ -22,21 +23,65 @@ class WaterLevelObserver extends JFrame {
 	}
 }
 class Alarm extends WaterLevelObserver {
-	public Alarm(String id) {
-		super(id);
-	}
-	
-	public void update(int waterLevel){
-		System.out.println(waterLevel>50 ? getId()+"-->Alarm ON":getId()+"-->Alarm OFF");
-	}
+    private JLabel statusLabel;
+    private int alarmLevel  = 50;
+
+    public Alarm(String id) {
+        super(id);
+        setTitle("Alarm - " + id);
+        setSize(320, 150);
+        setLayout(new FlowLayout());
+
+        statusLabel = new JLabel(id + " --> Alarm OFF (Limit: " + alarmLevel + ")", SwingConstants.CENTER);
+        statusLabel.setFont(new Font("", Font.BOLD, 14));
+        statusLabel.setForeground(Color.RED);
+
+        add(statusLabel);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setLocation(950,340);
+        setVisible(true);
+    }
+
+    public void setalarmLevel(int threshold) {
+        this.alarmLevel = threshold;
+    }
+
+    
+    public void update(int waterLevel) {
+        setTitle("Alarm - " + id);
+        if (waterLevel > alarmLevel) {
+            statusLabel.setText(id + " --> Alarm ON ( > " + alarmLevel + ")");
+            getContentPane().setBackground(Color.RED);
+            statusLabel.setForeground(Color.WHITE);
+        } else {
+            statusLabel.setText(id + " --> Alarm OFF (Limit: " + alarmLevel + ")");
+            getContentPane().setBackground(Color.LIGHT_GRAY);
+            statusLabel.setForeground(Color.BLACK);
+        }
+    }
 }
 class Splitter extends WaterLevelObserver{
-	public Splitter(String id) {
+    private JLabel spliLabel;
+    private int spliLevel = 75;
+
+    public Splitter(String id) {
 		super(id);
+        setTitle("Splitter ID  -"+ getId());
+        setSize(320, 150);
+        setLayout(new FlowLayout());
+
+        spliLabel = new JLabel(getId()+ "--> Splitter OFF (Limit :)" +spliLevel+ ")",SwingConstants.CENTER);
+        spliLabel.setFont(new Font("",Font.BOLD,14));
+        spliLabel.setForeground(Color.GREEN);
+
+        add(spliLabel);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setVisible(true);
 	}
 	
 	public void update(int waterLevel){
 		System.out.println(waterLevel>75 ? getId()+"-->Splitter ON":getId()+"-->Splitter OFF");
+
 	}
 }
 class Display extends WaterLevelObserver{
@@ -51,6 +96,7 @@ class Display extends WaterLevelObserver{
 class SMSSender extends WaterLevelObserver{
 	public SMSSender(String id) {
 		super(id);
+        setTitle("");
 
 	}
 
